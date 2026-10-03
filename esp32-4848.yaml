@@ -1,0 +1,488 @@
+esphome:
+  name: esp32-4848
+  friendly_name: ESP32-4848S040
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  hardware_uart: UART0
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "ESP32-4848-S040C"
+    password: "4848S040C_AP"
+
+captive_portal:
+
+spi:
+  clk_pin: GPIO48
+  mosi_pin: GPIO47
+
+display:
+  - platform: mipi_rgb
+    model: GUITION-4848S040
+    id: display1
+    update_interval: never
+    auto_clear_enabled: false
+
+i2c:
+  sda: GPIO19
+  scl: GPIO45
+
+touchscreen:
+  - platform: gt911
+    id: touchscreen1
+
+output:
+  - platform: ledc
+    pin: GPIO38
+    id: backlight_pwm
+
+light:
+  - platform: monochromatic
+    output: backlight_pwm
+    id: backlight
+    name: Backlight
+    restore_mode: ALWAYS_ON
+
+globals:
+  - id: background_theme
+    type: int
+    initial_value: "0"
+  - id: font_theme
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_00
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_01
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_02
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_03
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_04
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_05
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_06
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_07
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_08
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_09
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_10
+    type: int
+    initial_value: "0"
+  - id: hot_water_sample_11
+    type: int
+    initial_value: "0"
+
+sensor:
+  - platform: homeassistant
+    id: pv_power
+    entity_id: sensor.sh5_0rt_local_total_dc_power
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: pv_power_label
+            text: !lambda |-
+              return str_sprintf("PV-Leistung: %.0f W", x);
+  - platform: homeassistant
+    id: battery_level
+    entity_id: sensor.sh5_0rt_local_battery_level
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: battery_level_label
+            text: !lambda |-
+              return str_sprintf("Batterie: %.0f %%", x);
+  - platform: homeassistant
+    id: hot_water_temp
+    entity_id: sensor.lohome_domestic_hot_water_0_tank_temperature
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: hot_water_temp_label
+            text: !lambda |-
+              return str_sprintf("Warmwasser: %.1f °C", x);
+        - lambda: |-
+            id(hot_water_sample_11) = (int) x;
+        - lvgl.bar.update:
+            id: history_bar_11
+            value: !lambda return id(hot_water_sample_11);
+  - platform: homeassistant
+    id: room_temperature
+    entity_id: sensor.eg_wohnen_hm_eg_wohnen
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: room_temperature_label
+            text: !lambda |-
+              return str_sprintf("Wohnzimmer: %.1f °C", x);
+        - lvgl.label.update:
+            id: room_temperature_page_label
+            text: !lambda |-
+              return str_sprintf("Wohnzimmer: %.1f °C", x);
+  - platform: homeassistant
+    id: forecast_temperature
+    entity_id: weather.forecast_home
+    attribute: temperature
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: forecast_temperature_label
+            text: !lambda |-
+              return str_sprintf("Aussentemperatur: %.1f °C", x);
+        - lvgl.label.update:
+            id: forecast_temperature_page_label
+            text: !lambda |-
+              return str_sprintf("Temperatur: %.1f °C", x);
+
+text_sensor:
+  - platform: homeassistant
+    id: forecast_state
+    entity_id: weather.forecast_home
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: forecast_state_label
+            text: !lambda |-
+              return str_sprintf("Vorhersage: %s", x.c_str());
+        - lvgl.label.update:
+            id: forecast_state_page_label
+            text: !lambda |-
+              return str_sprintf("Vorhersage: %s", x.c_str());
+
+interval:
+  - interval: 2h
+    then:
+      - if:
+          condition:
+            lambda: return id(hot_water_temp).has_state();
+          then:
+            - lambda: |-
+                id(hot_water_sample_00) = id(hot_water_sample_01);
+                id(hot_water_sample_01) = id(hot_water_sample_02);
+                id(hot_water_sample_02) = id(hot_water_sample_03);
+                id(hot_water_sample_03) = id(hot_water_sample_04);
+                id(hot_water_sample_04) = id(hot_water_sample_05);
+                id(hot_water_sample_05) = id(hot_water_sample_06);
+                id(hot_water_sample_06) = id(hot_water_sample_07);
+                id(hot_water_sample_07) = id(hot_water_sample_08);
+                id(hot_water_sample_08) = id(hot_water_sample_09);
+                id(hot_water_sample_09) = id(hot_water_sample_10);
+                id(hot_water_sample_10) = id(hot_water_sample_11);
+                id(hot_water_sample_11) = (int) id(hot_water_temp).state;
+            - lvgl.bar.update:
+                id: history_bar_00
+                value: !lambda return id(hot_water_sample_00);
+            - lvgl.bar.update:
+                id: history_bar_01
+                value: !lambda return id(hot_water_sample_01);
+            - lvgl.bar.update:
+                id: history_bar_02
+                value: !lambda return id(hot_water_sample_02);
+            - lvgl.bar.update:
+                id: history_bar_03
+                value: !lambda return id(hot_water_sample_03);
+            - lvgl.bar.update:
+                id: history_bar_04
+                value: !lambda return id(hot_water_sample_04);
+            - lvgl.bar.update:
+                id: history_bar_05
+                value: !lambda return id(hot_water_sample_05);
+            - lvgl.bar.update:
+                id: history_bar_06
+                value: !lambda return id(hot_water_sample_06);
+            - lvgl.bar.update:
+                id: history_bar_07
+                value: !lambda return id(hot_water_sample_07);
+            - lvgl.bar.update:
+                id: history_bar_08
+                value: !lambda return id(hot_water_sample_08);
+            - lvgl.bar.update:
+                id: history_bar_09
+                value: !lambda return id(hot_water_sample_09);
+            - lvgl.bar.update:
+                id: history_bar_10
+                value: !lambda return id(hot_water_sample_10);
+            - lvgl.bar.update:
+                id: history_bar_11
+                value: !lambda return id(hot_water_sample_11);
+
+script:
+  - id: cycle_background
+    then:
+      - lambda: |-
+          id(background_theme) = (id(background_theme) + 1) % 4;
+      - if:
+          condition:
+            lambda: return id(background_theme) == 0;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                bg_color: 0x003B2F
+            - lvgl.widget.update:
+                id: pv_page
+                bg_color: 0x003B2F
+            - lvgl.widget.update:
+                id: wp_page
+                bg_color: 0x003B2F
+            - lvgl.widget.update:
+                id: wv_page
+                bg_color: 0x003B2F
+            - lvgl.widget.update:
+                id: zt_page
+                bg_color: 0x003B2F
+            - lvgl.widget.update:
+                id: settings_page
+                bg_color: 0x003B2F
+            - lvgl.label.update:
+                id: background_label
+                text: "Hintergrund: Dunkelgruen"
+      - if:
+          condition:
+            lambda: return id(background_theme) == 1;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                bg_color: 0x3B1010
+            - lvgl.widget.update:
+                id: pv_page
+                bg_color: 0x3B1010
+            - lvgl.widget.update:
+                id: wp_page
+                bg_color: 0x3B1010
+            - lvgl.widget.update:
+                id: wv_page
+                bg_color: 0x3B1010
+            - lvgl.widget.update:
+                id: zt_page
+                bg_color: 0x3B1010
+            - lvgl.widget.update:
+                id: settings_page
+                bg_color: 0x3B1010
+            - lvgl.label.update:
+                id: background_label
+                text: "Hintergrund: Dunkelrot"
+      - if:
+          condition:
+            lambda: return id(background_theme) == 2;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                bg_color: 0x101F3B
+            - lvgl.widget.update:
+                id: pv_page
+                bg_color: 0x101F3B
+            - lvgl.widget.update:
+                id: wp_page
+                bg_color: 0x101F3B
+            - lvgl.widget.update:
+                id: wv_page
+                bg_color: 0x101F3B
+            - lvgl.widget.update:
+                id: zt_page
+                bg_color: 0x101F3B
+            - lvgl.widget.update:
+                id: settings_page
+                bg_color: 0x101F3B
+            - lvgl.label.update:
+                id: background_label
+                text: "Hintergrund: Dunkelblau"
+      - if:
+          condition:
+            lambda: return id(background_theme) == 3;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                bg_color: 0x000000
+            - lvgl.widget.update:
+                id: pv_page
+                bg_color: 0x000000
+            - lvgl.widget.update:
+                id: wp_page
+                bg_color: 0x000000
+            - lvgl.widget.update:
+                id: wv_page
+                bg_color: 0x000000
+            - lvgl.widget.update:
+                id: zt_page
+                bg_color: 0x000000
+            - lvgl.widget.update:
+                id: settings_page
+                bg_color: 0x000000
+            - lvgl.label.update:
+                id: background_label
+                text: "Hintergrund: Schwarz"
+  - id: cycle_font_color
+    then:
+      - lambda: |-
+          id(font_theme) = (id(font_theme) + 1) % 5;
+      - if:
+          condition:
+            lambda: return id(font_theme) == 0;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                text_color: 0xFFFFFF
+            - lvgl.widget.update:
+                id: pv_page
+                text_color: 0xFFFFFF
+            - lvgl.widget.update:
+                id: wp_page
+                text_color: 0xFFFFFF
+            - lvgl.widget.update:
+                id: wv_page
+                text_color: 0xFFFFFF
+            - lvgl.widget.update:
+                id: zt_page
+                text_color: 0xFFFFFF
+            - lvgl.widget.update:
+                id: settings_page
+                text_color: 0xFFFFFF
+            - lvgl.label.update:
+                id: font_color_label
+                text: "Schriftfarbe: Weiss"
+      - if:
+          condition:
+            lambda: return id(font_theme) == 1;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                text_color: 0xD3D3D3
+            - lvgl.widget.update:
+                id: pv_page
+                text_color: 0xD3D3D3
+            - lvgl.widget.update:
+                id: wp_page
+                text_color: 0xD3D3D3
+            - lvgl.widget.update:
+                id: wv_page
+                text_color: 0xD3D3D3
+            - lvgl.widget.update:
+                id: zt_page
+                text_color: 0xD3D3D3
+            - lvgl.widget.update:
+                id: settings_page
+                text_color: 0xD3D3D3
+            - lvgl.label.update:
+                id: font_color_label
+                text: "Schriftfarbe: Hellgrau"
+      - if:
+          condition:
+            lambda: return id(font_theme) == 2;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                text_color: 0xFFFF00
+            - lvgl.widget.update:
+                id: pv_page
+                text_color: 0xFFFF00
+            - lvgl.widget.update:
+                id: wp_page
+                text_color: 0xFFFF00
+            - lvgl.widget.update:
+                id: wv_page
+                text_color: 0xFFFF00
+            - lvgl.widget.update:
+                id: zt_page
+                text_color: 0xFFFF00
+            - lvgl.widget.update:
+                id: settings_page
+                text_color: 0xFFFF00
+            - lvgl.label.update:
+                id: font_color_label
+                text: "Schriftfarbe: Gelb"
+      - if:
+          condition:
+            lambda: return id(font_theme) == 3;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                text_color: 0x90EE90
+            - lvgl.widget.update:
+                id: pv_page
+                text_color: 0x90EE90
+            - lvgl.widget.update:
+                id: wp_page
+                text_color: 0x90EE90
+            - lvgl.widget.update:
+                id: wv_page
+                text_color: 0x90EE90
+            - lvgl.widget.update:
+                id: zt_page
+                text_color: 0x90EE90
+            - lvgl.widget.update:
+                id: settings_page
+                text_color: 0x90EE90
+            - lvgl.label.update:
+                id: font_color_label
+                text: "Schriftfarbe: Hellgruen"
+      - if:
+          condition:
+            lambda: return id(font_theme) == 4;
+          then:
+            - lvgl.widget.update:
+                id: main_page
+                text_color: 0x87CEFA
+            - lvgl.widget.update:
+                id: pv_page
+                text_color: 0x87CEFA
+            - lvgl.widget.update:
+                id: wp_page
+                text_color: 0x87CEFA
+            - lvgl.widget.update:
+                id: wv_page
+                text_color: 0x87CEFA
+            - lvgl.widget.update:
+                id: zt_page
+                text_color: 0x87CEFA
+            - lvgl.widget.update:
+                id: settings_page
+                text_color: 0x87CEFA
+            - lvgl.label.update:
+                id: font_color_label
+                text: "Schriftfarbe: Hellblau"
+
+lvgl:
+  displays:
+    - display_id: display1
+  touchscreens:
+    - touchscreen_id: touchscreen1
+  pages:
+    - !include display_screens/main_page.yaml
+    - !include display_screens/PV_page.yaml
+    - !include display_screens/WP_page.yaml
+    - !include display_screens/WV_page.yaml
+    - !include display_screens/ZT_page.yaml
+    - !include display_screens/settings_page.yaml

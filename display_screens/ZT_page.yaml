@@ -1,0 +1,22 @@
+id: zt_page
+widgets:
+  - label:
+      text: "Zimmertemperaturen"
+      align: TOP_MID
+      y: 25
+  - label:
+      id: room_temperature_page_label
+      text: "Wohnzimmer: --.- °C"
+      align: TOP_MID
+      y: 150
+  - button:
+      align: BOTTOM_MID
+      y: -25
+      width: 200
+      height: 60
+      widgets:
+        - label:
+            text: "Startseite"
+      on_click:
+        then:
+          - lvgl.page.show: main_page

@@ -1,0 +1,76 @@
+id: main_page
+widgets:
+  - label:
+      text: "ESP32-4848 Dashboard"
+      align: TOP_MID
+      y: 18
+  - label:
+      id: room_temperature_label
+      text: "Wohnzimmer: --.- °C"
+      align: TOP_MID
+      y: 70
+  - label:
+      id: forecast_state_label
+      text: "Vorhersage: --"
+      align: TOP_MID
+      y: 108
+  - label:
+      id: forecast_temperature_label
+      text: "Aussentemperatur: --.- °C"
+      align: TOP_MID
+      y: 145
+  - button:
+      x: 25
+      y: 205
+      width: 200
+      height: 65
+      widgets:
+        - label:
+            text: "PV"
+      on_click:
+        then:
+          - lvgl.page.show: pv_page
+  - button:
+      x: 255
+      y: 205
+      width: 200
+      height: 65
+      widgets:
+        - label:
+            text: "Waermepumpe"
+      on_click:
+        then:
+          - lvgl.page.show: wp_page
+  - button:
+      x: 25
+      y: 290
+      width: 200
+      height: 65
+      widgets:
+        - label:
+            text: "Wetter"
+      on_click:
+        then:
+          - lvgl.page.show: wv_page
+  - button:
+      x: 255
+      y: 290
+      width: 200
+      height: 65
+      widgets:
+        - label:
+            text: "Zimmer"
+      on_click:
+        then:
+          - lvgl.page.show: zt_page
+  - button:
+      x: 140
+      y: 375
+      width: 200
+      height: 65
+      widgets:
+        - label:
+            text: "Einstellungen"
+      on_click:
+        then:
+          - lvgl.page.show: settings_page

@@ -1,0 +1,27 @@
+id: pv_page
+widgets:
+  - label:
+      text: "Photovoltaik"
+      align: TOP_MID
+      y: 25
+  - label:
+      id: pv_power_label
+      text: "PV-Leistung: -- W"
+      align: TOP_MID
+      y: 125
+  - label:
+      id: battery_level_label
+      text: "Batterie: -- %"
+      align: TOP_MID
+      y: 190
+  - button:
+      align: BOTTOM_MID
+      y: -25
+      width: 200
+      height: 60
+      widgets:
+        - label:
+            text: "Startseite"
+      on_click:
+        then:
+          - lvgl.page.show: main_page
