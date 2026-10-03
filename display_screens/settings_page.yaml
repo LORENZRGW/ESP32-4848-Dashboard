@@ -1,0 +1,66 @@
+id: settings_page
+widgets:
+  - label:
+      text: "Einstellungen"
+      align: TOP_MID
+      y: 20
+  - label:
+      text: "Displayhelligkeit"
+      align: TOP_MID
+      y: 80
+  - slider:
+      id: brightness_slider
+      align: TOP_MID
+      y: 125
+      width: 380
+      min_value: 10
+      max_value: 100
+      value: 80
+      on_value:
+        then:
+          - light.turn_on:
+              id: backlight
+              brightness: !lambda return x / 100.0;
+  - label:
+      id: background_label
+      text: "Hintergrund: Dunkelgruen"
+      align: TOP_MID
+      y: 185
+  - button:
+      align: TOP_MID
+      y: 225
+      width: 300
+      height: 55
+      widgets:
+        - label:
+            text: "Hintergrundfarbe wechseln"
+      on_click:
+        then:
+          - script.execute: cycle_background
+  - label:
+      id: font_color_label
+      text: "Schriftfarbe: Weiss"
+      align: TOP_MID
+      y: 300
+  - button:
+      align: TOP_MID
+      y: 340
+      width: 300
+      height: 55
+      widgets:
+        - label:
+            text: "Schriftfarbe wechseln"
+      on_click:
+        then:
+          - script.execute: cycle_font_color
+  - button:
+      align: BOTTOM_MID
+      y: -10
+      width: 200
+      height: 55
+      widgets:
+        - label:
+            text: "Startseite"
+      on_click:
+        then:
+          - lvgl.page.show: main_page
