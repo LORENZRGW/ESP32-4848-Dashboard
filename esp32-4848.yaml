@@ -136,7 +136,7 @@ sensor:
               return str_sprintf("Warmwasser: %.1f °C", x);
         - lambda: |-
             id(hot_water_sample_11) = (int) x;
-        - lvgl.widget.update:
+        - lvgl.bar.update:
             id: history_bar_11
             value: !lambda return id(hot_water_sample_11);
   - platform: homeassistant
@@ -202,40 +202,40 @@ interval:
                 id(hot_water_sample_09) = id(hot_water_sample_10);
                 id(hot_water_sample_10) = id(hot_water_sample_11);
                 id(hot_water_sample_11) = (int) id(hot_water_temp).state;
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_00
                 value: !lambda return id(hot_water_sample_00);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_01
                 value: !lambda return id(hot_water_sample_01);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_02
                 value: !lambda return id(hot_water_sample_02);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_03
                 value: !lambda return id(hot_water_sample_03);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_04
                 value: !lambda return id(hot_water_sample_04);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_05
                 value: !lambda return id(hot_water_sample_05);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_06
                 value: !lambda return id(hot_water_sample_06);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_07
                 value: !lambda return id(hot_water_sample_07);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_08
                 value: !lambda return id(hot_water_sample_08);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_09
                 value: !lambda return id(hot_water_sample_09);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_10
                 value: !lambda return id(hot_water_sample_10);
-            - lvgl.widget.update:
+            - lvgl.bar.update:
                 id: history_bar_11
                 value: !lambda return id(hot_water_sample_11);
 
